@@ -3,7 +3,8 @@ using UnityEngine;
 
 public class AlarmZone : MonoBehaviour
 {
-    [SerializeField] private AlarmSound _alarmSound;
+    public Action zoneEntered;
+    public Action zoneEmpty;
 
     private int _buglarCount = 0;
 
@@ -11,18 +12,17 @@ public class AlarmZone : MonoBehaviour
     {
         _buglarCount++;
 
-        if (_alarmSound == null)
+        if (_buglarCount > 1)
             return;
 
-        _alarmSound.StartPlayAlarm();
+        zoneEntered?.Invoke();
     }
-    private void OnTriggerExit()
+
+    private void OnTriggerExit(Collider other)
     {
-        _buglarCount--;
+        _buglarCount = Mathf.Max(0, _buglarCount - 1);
 
-        if (_alarmSound == null || _buglarCount > 0)
-            return;
-
-        _alarmSound.StopPlayAlarm();
+        if (_buglarCount == 0)
+            zoneEmpty?.Invoke();
     }
 }

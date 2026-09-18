@@ -1,41 +1,93 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(AudioSource))]
 
 public class AlarmSound : MonoBehaviour
 {
-    [SerializeField] private float _volumeChangeSpeed = 1.0f;
     [SerializeField] private AudioSource _audioSource;
+    [SerializeField] private AudioSource _audioSourceForMaxVolume;
 
     private float _volumeTarget;
+    private float _volumeChangeSpeed = 0.3f;
+
+    private float _maxVolume = 1.0f;
+    private float _minVolume = 0.0f;
+
+    private bool _canPlayAudioSourceForMaxVolume;
+    private Coroutine _volumeChangeCoroutine;
 
     private void Awake()
     {
-        _audioSource = GetComponent<AudioSource>();
-        _audioSource.mute = true;
-        _audioSource.volume = 0.0f;
+        ResetAll();
     }
 
-    private void Update()
+    private void OnDisable()
     {
-        _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, _volumeTarget, _volumeChangeSpeed * Time.deltaTime);
+        if (_volumeChangeCoroutine == null)
+            return;
 
-        if (_volumeTarget > 0.1f)
-            _audioSource.mute = false;
-        else if (_audioSource.volume <= 0.1f)
-            _audioSource.mute = true;
+        StopCoroutine(_volumeChangeCoroutine);
+        _volumeChangeCoroutine = null;
+
+        ResetAll();
+    }
+
+    private IEnumerator PlayAlarmSound()
+    {
+        while (enabled)
+        {
+            if (_audioSource.volume == _minVolume && _volumeTarget == _minVolume)
+            {
+                ResetAll();
+                _volumeChangeCoroutine = null;
+
+                yield break;
+            }
+
+            _audioSource.volume = Mathf.MoveTowards(_audioSource.volume, _volumeTarget, _volumeChangeSpeed * Time.deltaTime);
+
+            if (_audioSource.volume >= _maxVolume && _canPlayAudioSourceForMaxVolume)
+            {
+                _audioSourceForMaxVolume.mute = false;
+                _audioSourceForMaxVolume.Play();
+
+                _canPlayAudioSourceForMaxVolume = false;
+            }
+
+            yield return null;
+        }
     }
 
     public void StartPlayAlarm()
     {
-        _volumeTarget = 1.0f;
+        if (_volumeChangeCoroutine != null)
+        {
+            StopCoroutine(_volumeChangeCoroutine);
+            _volumeChangeCoroutine = null;
+        }
 
-        if (_audioSource.isPlaying)
-            return;
+        ResetAll();
 
+        _audioSource.mute = false;
         _audioSource.Play();
+
+        _volumeChangeCoroutine = StartCoroutine(PlayAlarmSound());
     }
 
     public void StopPlayAlarm() =>
-        _volumeTarget = 0.0f;
+        _volumeTarget = _minVolume;
+
+    private void ResetAll()
+    {
+        _audioSource.mute = true;
+        _audioSourceForMaxVolume.mute = true;
+
+        _audioSource.Stop();
+        _audioSourceForMaxVolume.Stop();
+
+        _audioSource.volume = _minVolume;
+        _volumeTarget = _maxVolume;
+        _canPlayAudioSourceForMaxVolume = true;
+    }
 }

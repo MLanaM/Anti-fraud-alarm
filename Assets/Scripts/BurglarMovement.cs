@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BurglarMovenemt : MonoBehaviour
+public class BurglarMovement : MonoBehaviour
 {
     private const string Horizontal = nameof(Horizontal);
     private const string Vertical = nameof(Vertical);
@@ -22,7 +22,7 @@ public class BurglarMovenemt : MonoBehaviour
     {
         _rotation = Input.GetAxis(Horizontal);
 
-        transform.Rotate(_rotation * _rotateSpeed * Time.deltaTime * Vector3.up);
+        transform.Rotate(Vector3.up * _rotation * _rotateSpeed * Time.deltaTime);
     }
 
     private void Move()
@@ -30,6 +30,6 @@ public class BurglarMovenemt : MonoBehaviour
         _direction = Input.GetAxis(Vertical);
         _distance = _direction * _moveSpeed * Time.deltaTime;
 
-        transform.Translate(_distance * Vector3.forward);
+        transform.Translate(Vector3.forward * _distance);
     }
 }
