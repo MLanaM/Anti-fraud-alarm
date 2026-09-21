@@ -3,26 +3,26 @@ using UnityEngine;
 
 public class AlarmZone : MonoBehaviour
 {
-    public Action zoneEntered;
-    public Action zoneEmpty;
+    private int _burglarCount = 0;
 
-    private int _buglarCount = 0;
+    public Action ZoneEntered;
+    public Action ZoneEmpty;
 
     private void OnTriggerEnter(Collider other)
     {
-        _buglarCount++;
+        _burglarCount++;
 
-        if (_buglarCount > 1)
+        if (_burglarCount > 1)
             return;
 
-        zoneEntered?.Invoke();
+        ZoneEntered?.Invoke();
     }
 
     private void OnTriggerExit(Collider other)
     {
-        _buglarCount = Mathf.Max(0, _buglarCount - 1);
+        _burglarCount = Mathf.Max(0, _burglarCount - 1);
 
-        if (_buglarCount == 0)
-            zoneEmpty?.Invoke();
+        if (_burglarCount == 0)
+            ZoneEmpty?.Invoke();
     }
 }

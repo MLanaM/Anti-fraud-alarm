@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
@@ -8,46 +7,14 @@ public class Door : MonoBehaviour
 
     private float _openedState = -45f;
     private float _closedState = 0f;
-    private float _movingSpeed = 90f;
-
-    private float _rotationTarget;
-    private float _rotationY;
+    private float _speed = 90f;
 
     private Coroutine _doorMovingCoroutine;
-    private bool _isTargetAchieved = true;
     private int _hinderCount = 0;
-
-    private void Awake()
-    {
-        _rotationTarget = _closedState;
-    }
 
     private void OnDisable()
     {
-        if (_doorMovingCoroutine == null)
-            return;
-
-        StopCoroutine(_doorMovingCoroutine);
-        _doorMovingCoroutine = null;
-    }
-
-    private IEnumerator DoorTurning()
-    {
-        while (_isTargetAchieved == false)
-        {
-            _rotationY = _doorTransform.localEulerAngles.y;
-
-            if (Mathf.Approximately(_rotationY, _rotationTarget))
-            {
-                _isTargetAchieved = true;
-                yield break;
-            }
-
-            _rotationY = Mathf.MoveTowardsAngle(_rotationY, _rotationTarget, _movingSpeed * Time.deltaTime);
-            _doorTransform.localEulerAngles = new Vector3(_doorTransform.localEulerAngles.x, _rotationY, _doorTransform.localEulerAngles.z);
-
-            yield return null;
-        }
+        TryStop();
     }
 
     private void OnTriggerEnter(Collider otherCollider)
@@ -57,9 +24,8 @@ public class Door : MonoBehaviour
         if (_hinderCount > 1)
             return;
 
-        _rotationTarget = _openedState;
-        _isTargetAchieved = false;
-        _doorMovingCoroutine = StartCoroutine(DoorTurning());
+        TryStop();
+        _doorMovingCoroutine = StartCoroutine(DoorTurning(_openedState));
     }
 
     private void OnTriggerExit(Collider otherCollider)
@@ -69,8 +35,31 @@ public class Door : MonoBehaviour
         if (_hinderCount > 0)
             return;
 
-        _rotationTarget = _closedState;
-        _isTargetAchieved = false;
-        _doorMovingCoroutine = StartCoroutine(DoorTurning());
+        TryStop();
+        _doorMovingCoroutine = StartCoroutine(DoorTurning(_closedState));
+    }
+
+    private IEnumerator DoorTurning(float target)
+    {
+        float rotationY = _doorTransform.localEulerAngles.y;
+
+        while (Mathf.DeltaAngle(rotationY, target) != 0)
+        {
+            rotationY = Mathf.MoveTowardsAngle(rotationY, target, _speed * Time.deltaTime);
+            Vector3 rotation = _doorTransform.localEulerAngles;
+            rotation.y = rotationY;
+            _doorTransform.localEulerAngles = rotation;
+
+            yield return null;
+        }
+    }
+
+    private void TryStop()
+    {
+        if (_doorMovingCoroutine == null)
+            return;
+
+        StopCoroutine(_doorMovingCoroutine);
+        _doorMovingCoroutine = null;
     }
 }

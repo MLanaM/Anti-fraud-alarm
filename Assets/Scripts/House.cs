@@ -7,19 +7,19 @@ public class House : MonoBehaviour
 
     private void OnEnable()
     {
-        _alarmZone.zoneEntered += OnZoneEntered;
-        _alarmZone.zoneEmpty += OnZoneEmpty;
+        _alarmZone.ZoneEntered += OnZoneEntered;
+        _alarmZone.ZoneEmpty += OnZoneEmpty;
     }
 
     private void OnDisable()
     {
-        _alarmZone.zoneEntered -= OnZoneEntered;
-        _alarmZone.zoneEmpty -= OnZoneEmpty;
+        _alarmZone.ZoneEntered -= OnZoneEntered;
+        _alarmZone.ZoneEmpty -= OnZoneEmpty;
     }
 
     private void OnZoneEntered() =>
-        _alarmSound.StartPlayAlarm();
+        _alarmSound.PlayUp();
 
     private void OnZoneEmpty() =>
-        _alarmSound.StopPlayAlarm();
+        _alarmSound.PlayDown();
 }
