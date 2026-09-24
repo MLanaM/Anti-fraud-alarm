@@ -25,7 +25,7 @@ public class Door : MonoBehaviour
             return;
 
         TryStop();
-        _doorMovingCoroutine = StartCoroutine(DoorTurning(_openedState));
+        _doorMovingCoroutine = StartCoroutine(TurnDoor(_openedState));
     }
 
     private void OnTriggerExit(Collider otherCollider)
@@ -36,10 +36,10 @@ public class Door : MonoBehaviour
             return;
 
         TryStop();
-        _doorMovingCoroutine = StartCoroutine(DoorTurning(_closedState));
+        _doorMovingCoroutine = StartCoroutine(TurnDoor(_closedState));
     }
 
-    private IEnumerator DoorTurning(float target)
+    private IEnumerator TurnDoor(float target)
     {
         float rotationY = _doorTransform.localEulerAngles.y;
 

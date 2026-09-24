@@ -5,8 +5,8 @@ public class AlarmZone : MonoBehaviour
 {
     private int _burglarCount = 0;
 
-    public Action ZoneEntered;
-    public Action ZoneEmpty;
+    public event Action ZoneEntered;
+    public event Action ZoneEmpty;
 
     private void OnTriggerEnter(Collider other)
     {

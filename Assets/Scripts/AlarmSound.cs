@@ -57,7 +57,7 @@ public class AlarmSound : MonoBehaviour
 
     private IEnumerator ChangeVolumeTo(float target, float speed, AudioSource source)
     {
-        while (source.volume != target)
+        while (!Mathf.Approximately(source.volume, target))
         {
             source.volume = Mathf.MoveTowards(source.volume, target, speed * Time.deltaTime);
 
